@@ -1,4 +1,4 @@
-const N = 1000; // 10,000,000
+const N = 100000000;
 const bitSize = 32;
 
 const unsorted_unique_nums = [
@@ -7,8 +7,6 @@ const unsorted_unique_nums = [
         .map(() => Math.round(Math.random() * (N)))),
 ];
 
-// const unsorted_unique_nums = [];
-//
 // for (let i = 0; i < N; i++) {
 //     unsorted_unique_nums[i] = i;
 // }
@@ -25,10 +23,8 @@ const unsorted_unique_nums = [
 //     }
 //     return arr;
 // }
-
+//
 // shuffle(unsorted_unique_nums);
-
-// const arrayOfSpecifiedLength = (n) => Array(n).fill(0);
 
 const setBit = (n, arr) => {
     const index = ~~(n / bitSize);
@@ -45,18 +41,18 @@ const bitVector = (arr) => {
     return bitSet
 }
 
-const wonderSort = (arr, chunkIndex) => {
+const wonderSort = (arr) => {
     const result = [];
     let x = 0;
-    console.log(arr)
+    wonderSort.cache = wonderSort.cache || 0;
     for (let i = 0; i < arr.length; i++) {
-    console.log(i, chunkIndex)
         for (let j = 0; j < bitSize; j++) {
             if (arr[i] & (1 << j)) {
-                result[x] = i * bitSize * chunkIndex + j;
+                result[x] = wonderSort.cache * bitSize + j;
                 x++;
             }
         }
+        wonderSort.cache++;
     }
     return result;
 };
@@ -68,7 +64,6 @@ const chunkedWonderSort = (arr) => {
 
     for (let i = 0; i < bitSet.length; i++) {
         const chunk = [...bitSet.slice(i * chunkSize, i * chunkSize + chunkSize)];
-        // console.log(chunk)
         if (!chunk.length) {
             break;
         }
@@ -76,6 +71,7 @@ const chunkedWonderSort = (arr) => {
     }
     return result.reduce((prev, curr) => [...prev, ...curr], [])
 }
-// chunkedWonderSort(unsorted_unique_nums)
-console.log(chunkedWonderSort(unsorted_unique_nums))
+
+chunkedWonderSort(unsorted_unique_nums)
+// console.log(chunkedWonderSort(unsorted_unique_nums))
 
