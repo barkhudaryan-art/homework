@@ -15,6 +15,21 @@ console.log("IS_UNIQUE_1 => ", is_unique_1("abAcdefgh"));
 console.log("IS_UNIQUE_1 => ", is_unique_1("aa"));
 
 // Method 2 not ready yet
+const setBit = (n, arr) => {
+    const index = ~~(n / bitSize);
+    const pos = n % bitSize;
+
+    return arr[index] |= 1 << pos;
+}
+
+const bitVector = (arr) => {
+    const bitSet = new Uint32Array(Math.ceil(N / bitSize));
+    for (let i = 0; i < arr.length; i++) {
+        setBit(arr[i], bitSet)
+    }
+    return bitSet
+}
+
 const is_unique_2 = (str) => {
     let bits = 0;
 

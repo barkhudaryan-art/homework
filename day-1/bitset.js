@@ -11,7 +11,7 @@ const unsorted_unique_nums = [
 //     unsorted_unique_nums[i] = i;
 // }
 //
-// const shuffle = (arr) => {
+// const shuffleArr = (arr) => {
 //     let temp;
 //     let curr;
 //     let top = arr.length;
@@ -24,7 +24,7 @@ const unsorted_unique_nums = [
 //     return arr;
 // }
 //
-// shuffle(unsorted_unique_nums);
+// shuffleArr(unsorted_unique_nums);
 
 const setBit = (n, arr) => {
     const index = ~~(n / bitSize);
