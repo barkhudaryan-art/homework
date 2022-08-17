@@ -1,11 +1,18 @@
-const reverse_string = (str) => {
-    const res = [];
-    for (const ch of str) {
-        res.unshift(ch);
-    }
-    return res.join('');
-}
+const regexSymbolWithCombiningMarks = /([0-\u02FF\u0370-\u1AAF\u1B00-\u1DBF\u1E00-\u20CF\u2100-\uD7FF\uE000-\uFE1F\uFE30-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])([\u0300-\u036F\u1AB0-\u1AFF\u1DC0-\u1DFF\u20D0-\u20FF\uFE20-\uFE2F]+)/g;
+const regexSurrogatePair = /([\uD800-\uDBFF])([\uDC00-\uDFFF])/g;
 
+const reverse_string = (str) => {
+    str = str.replace(regexSymbolWithCombiningMarks, ($0, $1, $2) => {
+        return reverse_string($2) + $1;
+    }).replace(regexSurrogatePair, '$2$1')
+    let res = '';
+    let index = str.length;
+    while (index--) {
+        res += str.charAt(index)
+    }
+
+    return res
+}
 console.log(reverse_string('aaaabbbb'))
 console.log(reverse_string('ytrewq'))
 console.log(reverse_string('ytr𝌆𝌆ewq😀'))

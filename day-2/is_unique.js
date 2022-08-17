@@ -48,11 +48,3 @@ const is_unique_2 = (str) => {
 
 console.log("IS_UNIQUE_2 => ", is_unique_2("abAsdh"));
 console.log("IS_UNIQUE_2 => ", is_unique_2("asbda"));
-
-// Method 3
-const is_unique_3 = (str) => {
-    return new Set(str).size === str.length;
-}
-
-console.log("IS_UNIQUE_3 => ", is_unique_3("abAsdh"));
-console.log("IS_UNIQUE_3 => ", is_unique_3("asbda"));
