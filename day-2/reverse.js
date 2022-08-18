@@ -14,5 +14,5 @@ const reverse_string = (str) => {
     return res
 }
 console.log(reverse_string('aaaabbbb'))
-console.log(reverse_string('ytrewq'))
-console.log(reverse_string('ytr𝌆𝌆ewq😀'))
+console.log(reverse_string('ytrew🧔‍♂️q'))
+console.log(reverse_string('ytr𝌆❤️‍ᾧ9𝌆ewq😀'))
