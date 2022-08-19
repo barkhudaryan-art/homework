@@ -1,4 +1,4 @@
-const N = 100000000;
+const N = 1000000;
 const bitSize = 32;
 
 const unsorted_unique_nums = [
@@ -44,15 +44,15 @@ const bitVector = (arr) => {
 const wonderSort = (arr) => {
     const result = [];
     let x = 0;
-    wonderSort.cache = wonderSort.cache || 0;
+    let numIndex = 0;
     for (let i = 0; i < arr.length; i++) {
         for (let j = 0; j < bitSize; j++) {
             if (arr[i] & (1 << j)) {
-                result[x] = wonderSort.cache * bitSize + j;
+                result[x] = numIndex * bitSize + j;
                 x++;
             }
         }
-        wonderSort.cache++;
+        numIndex++;
     }
     return result;
 };
@@ -72,6 +72,6 @@ const chunkedWonderSort = (arr) => {
     return result.reduce((prev, curr) => [...prev, ...curr], [])
 }
 
-chunkedWonderSort(unsorted_unique_nums)
-// console.log(chunkedWonderSort(unsorted_unique_nums))
+// chunkedWonderSort(unsorted_unique_nums)
+console.log(chunkedWonderSort(unsorted_unique_nums))
 
