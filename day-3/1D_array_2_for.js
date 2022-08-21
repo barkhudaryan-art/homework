@@ -9,7 +9,7 @@ const unsorted_unique_nums = [
 const sequentialSearch = (arr, n) => {
     for ( let i = 0; i < arr.length; ++i ) {
         for ( let j = arr.length - 1; --j; ) {
-            if ( arr[i] + arr[j] === n ) {
+            if ( arr[i] === n ||  arr[j] === n ) {
                 return true;
             }
         }
@@ -18,4 +18,4 @@ const sequentialSearch = (arr, n) => {
 };
 
 console.log( sequentialSearch( unsorted_unique_nums, 40 ) );
-console.log( sequentialSearch( [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 20 ) );
+console.log( sequentialSearch( [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 5 ) );
