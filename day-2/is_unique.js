@@ -1,4 +1,4 @@
-const EMOJI_REGEX = `
+const EMOJI_UNICODE = `
     \\uD83C\\uDFF4\\uDB40\\uDC67\\uDB40\\uDC62
     (?:\\uDB40\\uDC77\\uDB40\\uDC6C\\uDB40\\uDC73|
         \\uDB40\\uDC73\\uDB40\\uDC63\\uDB40\\uDC74|
@@ -139,14 +139,14 @@ const EMOJI_REGEX = `
     [\\uD800-\\uDBFF][\\uDC00-\\uDFFF]
 `;
 
-const EMOJI_REGEX_TRIMMED = new RegExp(EMOJI_REGEX.replace(/\s/g, ''), 'g');
+const EMOJI_REGEX = new RegExp(EMOJI_UNICODE.replace(/\s/g, ''), 'g');
 
 const is_unique = (str) => {
     const obj = {};
     const emojiIndexes = [];
     const emojiLengths = [];
     let match;
-    while ( match = EMOJI_REGEX_TRIMMED.exec( str ) ) {
+    while ( match = EMOJI_REGEX.exec( str ) ) {
         emojiIndexes.push( ( match.index ) );
         emojiLengths.push( match[0].length );
     }
