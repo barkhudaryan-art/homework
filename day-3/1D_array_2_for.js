@@ -7,8 +7,8 @@ const unsorted_unique_nums = [
 ];
 
 const sequentialSearch = (arr, n) => {
-    for ( let i = 0; i < arr.length; i++ ) {
-        for ( let j = i + 1; j < arr.length; j++ ) {
+    for ( let i = 0; i < arr.length; ++i ) {
+        for ( let j = arr.length - 1; --j; ) {
             if ( arr[i] + arr[j] === n ) {
                 return true;
             }

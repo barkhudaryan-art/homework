@@ -1,4 +1,4 @@
-const regex = `
+const EMOJI_REGEX = `
     \\uD83C\\uDFF4\\uDB40\\uDC67\\uDB40\\uDC62
     (?:\\uDB40\\uDC77\\uDB40\\uDC6C\\uDB40\\uDC73|
         \\uDB40\\uDC73\\uDB40\\uDC63\\uDB40\\uDC74|
@@ -139,7 +139,7 @@ const regex = `
     [\\uD800-\\uDBFF][\\uDC00-\\uDFFF]
 `;
 
-const EMOJI_REGEX = new RegExp(regex.replace(/\s/g, ''), 'g');
+const EMOJI_REGEX_TRIMMED = new RegExp(EMOJI_REGEX.replace(/\s/g, ''), 'g');
 
 const TEXT = `
     🧔‍♂️tree🧔‍♂️q 𝐁 ‍
@@ -222,12 +222,12 @@ const reverse_string = (str) => {
     const emojiIndexes = [];
     const emojiLengths = [];
     let match;
-    while ( match = EMOJI_REGEX.exec( str ) ) {
+    while ( match = EMOJI_REGEX_TRIMMED.exec( str ) ) {
         emojiIndexes.push( ( match.index ) );
         emojiLengths.push( match[0].length );
     }
     let j = 0;
-    for ( let i = 0; i < str.length; i++ ) {
+    for ( let i = 0; i < str.length; ++i ) {
         if ( emojiIndexes[j] === i ) {
             res.unshift( str.substring( emojiIndexes[j], emojiIndexes[j] + emojiLengths[j] ) );
             i += emojiLengths[j] - 1;

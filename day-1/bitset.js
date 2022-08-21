@@ -45,8 +45,8 @@ const wonderSort = (arr) => {
     const result = [];
     let x = 0;
     let numIndex = 0;
-    for (let i = 0; i < arr.length; i++) {
-        for (let j = 0; j < bitSize; j++) {
+    for (let i = 0; i < arr.length; ++i) {
+        for (let j = 0; j < bitSize; ++j) {
             if (arr[i] & (1 << j)) {
                 result[x] = numIndex * bitSize + j;
                 x++;
@@ -62,7 +62,7 @@ const chunkedWonderSort = (arr) => {
     const chunkSize = Math.ceil(N / bitSize * 0.1);
     const result = [];
 
-    for (let i = 0; i < bitSet.length; i++) {
+    for (let i = 0; i < bitSet.length; ++i) {
         const chunk = [...bitSet.slice(i * chunkSize, i * chunkSize + chunkSize)];
         if (!chunk.length) {
             break;

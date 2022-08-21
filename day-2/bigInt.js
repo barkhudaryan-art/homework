@@ -27,7 +27,7 @@ class CustomBigInt {
         if ( num1.length > num2.length ) return false;
         if ( num1.length < num2.length ) return true;
 
-        for ( let i = 0; i < num2.length; i++ ) {
+        for ( let i = 0; i < num2.length; ++i ) {
             if ( num1[i] < num2[i] ) return true;
             if ( num1[i] > num2[i] ) return false;
         }
@@ -90,7 +90,7 @@ class CustomBigInt {
         num2 = this.splitNumbers( num2 ).map( x => +x );
         const container = [];
         let carry = 0;
-        for ( let i = 0, len = num1.length; i < len; i++ ) {
+        for ( let i = 0, len = num1.length; i < len; ++i ) {
             let diff = 0;
             if ( num1[i] < num2[i] ) {
                 diff = this.convertToTenMillion( num1[i] ) - num2[i];
@@ -145,7 +145,7 @@ class CustomBigInt {
         const shorterArr = lenDiff >= 0 ? num2 : num1;
         const container = [];
         let carry = 0;
-        for ( let i = 0; i < shorterArr.length; i++ ) {
+        for ( let i = 0; i < shorterArr.length; ++i ) {
             let sum = ( +shorterArr[i] + +biggerArr[i] + carry ).toString();
             const zerosCount = 7 - sum.length;
             if ( zerosCount > 0 && /^0/.test( sum ) ) {
