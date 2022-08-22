@@ -1,22 +1,22 @@
 class CustomBigInt {
     constructor( num ) {
-        this.num = this.to_big_int( num ) || '';
+        this.num = this.to_big_int( num ).join( '' );
     }
 
     to_big_int( str ) {
         if ( typeof str !== 'string' ) {
-            return 'Wrong format';
+            throw 'Wrong format';
         }
 
         if ( /\D/.test( str ) ) {
-            return 'String contains non-digit chars';
+            throw 'String contains non-digit chars';
         }
 
         const arr = this.splitNumByMillions( str );
-        return this.num = [...arr].join( '' );
+        return this.num = [...arr];
     };
 
-    isSubAddEndBigger(num1, num2) {
+    isNum2Bigger(num1, num2) {
         num1 = num1.replace( /^-/, '' );
         num2 = num2.replace( /^-/, '' );
 
@@ -69,7 +69,7 @@ class CustomBigInt {
 
         // Both numbers are negative
         if ( num1Sign && num2Sign ) {
-            const isSubtrahendBigger = this.isSubAddEndBigger( num1, num2 );
+            const isSubtrahendBigger = this.isNum2Bigger( num1, num2 );
             // Subtrahend is bigger
             if ( isSubtrahendBigger ) {
                 return this.subtract_big_numbers( num2.substring( 1 ), num1.substring( 1 ) );
@@ -77,7 +77,7 @@ class CustomBigInt {
             return `-${this.subtract_big_numbers( num1.substring( 1 ), num2.substring( 1 ) )}`;
         }
 
-        const isSubtrahendBigger = this.isSubAddEndBigger( num1, num2 );
+        const isSubtrahendBigger = this.isNum2Bigger( num1, num2 );
         if ( isSubtrahendBigger ) {
             return `-${this.subtract_big_numbers( num2, num1 )}`;
         }
@@ -89,12 +89,12 @@ class CustomBigInt {
         for ( let i = 0; i < num1.length; ++i ) {
             let diff = num1[i] - this.getValueOrZero( num2[i] );
             if ( diff < 0 ) {
-                diff = 1e7 + diff;
+                diff += 1e7;
                 carry = 1;
             } else if ( carry && diff === 0 ) {
                 diff = 1e7 - carry;
             } else {
-                diff = diff - carry;
+                diff -= carry;
                 carry = 0;
             }
             container.push( diff );
@@ -107,7 +107,7 @@ class CustomBigInt {
 
         // Addend 1 is negative
         if ( num1Sign && !num2Sign ) {
-            const isSubtrahendBigger = this.isSubAddEndBigger( num1, num2 );
+            const isSubtrahendBigger = this.isNum2Bigger( num1, num2 );
             if ( isSubtrahendBigger ) {
                 return this.subtract_big_numbers( num2, num1.substring(1));
             }
@@ -116,7 +116,7 @@ class CustomBigInt {
 
         // Addend 2 is negative
         if ( !num1Sign && num2Sign ) {
-            const isSubtrahendBigger = this.isSubAddEndBigger( num1, num2 );
+            const isSubtrahendBigger = this.isNum2Bigger( num1, num2 );
             if (isSubtrahendBigger) {
                 return `-${this.subtract_big_numbers(num2.substring(1), num1)}`;
             }
@@ -128,7 +128,7 @@ class CustomBigInt {
             return `-${this.add_big_numbers( num1.substring( 1 ), num2.substring( 1 ))}`;
         }
 
-        const isAddendBigger = this.isSubAddEndBigger( num1, num2 );
+        const isAddendBigger = this.isNum2Bigger( num1, num2 );
         if ( isAddendBigger ) {
             return this.add_big_numbers( num2, num1 );
         }
@@ -141,7 +141,7 @@ class CustomBigInt {
         for ( let i = 0; i < num1.length; ++i ) {
             let sum = num1[i] + this.getValueOrZero( num2[i] ) + carry;
             if (sum >= 1e7) {
-                sum = sum % 1e7;
+                sum %= 1e7;
                 carry = 1;
             } else {
                 carry = 0;
@@ -154,7 +154,7 @@ class CustomBigInt {
 }
 
 
-const bigInt_1 = new CustomBigInt();
+const bigInt_1 = new CustomBigInt('8489498498416516584984186951891894865148941');
 
 // console.log( bigInt_1.add_big_numbers(
 //     '8489498498416516584984186951891894865148941',
