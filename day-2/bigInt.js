@@ -1,11 +1,19 @@
 class CustomBigInt {
-    constructor( num ) {
-        this.num = this.to_big_int( num ).join( '' );
+    constructor(num) {
+        this.num = `${this.to_big_int( num ).join( '' )}n`;
     }
 
-    to_big_int( str ) {
+    print() {
+        console.log( this.num );
+    }
+
+    to_big_int(str) {
         if ( typeof str !== 'string' ) {
-            throw 'Wrong format';
+            throw 'Wrong type';
+        }
+
+        if ( str === '' ) {
+            return '0';
         }
 
         if ( /\D/.test( str ) ) {
@@ -16,7 +24,7 @@ class CustomBigInt {
         return this.num = [...arr];
     };
 
-    isNum2Bigger(num1, num2) {
+    isSecondNumBigger(num1, num2) {
         num1 = num1.replace( /^-/, '' );
         num2 = num2.replace( /^-/, '' );
 
@@ -31,30 +39,26 @@ class CustomBigInt {
         return false;
     }
 
-    getNumbersSign( num1, num2 ) {
+    getNumbersSign(num1, num2) {
         return [/^-/.test( num1 ), /^-/.test( num2 )];
     }
 
-    splitNumByMillions( str ) {
-        return str.replace( /(?<=\d)(?=(?:\d{7})+(?!\d))/g, '.' ).split( '.' );
+    splitNumByMillions(str) {
+        return str.replace( /(?<=\d)(?=(?:\d{7})+(?!\d))/g, '.' ).replace( /^0+/g, '' ).split( '.' );
     }
 
-    splitNumbers( str ) {
-        return this.splitNumByMillions( str.replace( /^-?0+/g, '' ) ).reverse();
-    }
-
-    handleZeros( arr ) {
+    handleZeros(arr) {
         return arr.map( (n, i) => {
             const len = 7 - n.toString().length;
             return i === 0 || !len ? n : `${'0'.repeat( len )}${n}`;
         } );
     }
 
-    getValueOrZero( n ) {
+    getValueOrZero(n) {
         return n || 0;
     }
 
-    subtract_big_numbers( num1, num2 ) {
+    subtract_big_numbers(num1, num2) {
         const [num1Sign, num2Sign] = this.getNumbersSign( num1, num2 );
 
         // Subtrahend is negative, add the numbers
@@ -69,20 +73,23 @@ class CustomBigInt {
 
         // Both numbers are negative
         if ( num1Sign && num2Sign ) {
-            const isSubtrahendBigger = this.isNum2Bigger( num1, num2 );
-            // Subtrahend is bigger
+            const isSubtrahendBigger = this.isSecondNumBigger( num1, num2 );
+            // Subtrahend is bigger, swap numbers and subtract
             if ( isSubtrahendBigger ) {
                 return this.subtract_big_numbers( num2.substring( 1 ), num1.substring( 1 ) );
             }
+            // Minuend is bigger, subtract the numbers with - sign
             return `-${this.subtract_big_numbers( num1.substring( 1 ), num2.substring( 1 ) )}`;
         }
 
-        const isSubtrahendBigger = this.isNum2Bigger( num1, num2 );
+        // Both numbers are positive, but Subtrahend is bigger
+        // Swap them and add - sign
+        const isSubtrahendBigger = this.isSecondNumBigger( num1, num2 );
         if ( isSubtrahendBigger ) {
             return `-${this.subtract_big_numbers( num2, num1 )}`;
         }
-        num1 = this.splitNumbers( num1 ).map( x => +x );
-        num2 = this.splitNumbers( num2 ).map( x => +x );
+        num1 = this.splitNumByMillions( num1 ).reverse().map( x => +x );
+        num2 = this.splitNumByMillions( num2 ).reverse().map( x => +x );
         const container = [];
         let carry = 0;
 
@@ -107,40 +114,45 @@ class CustomBigInt {
 
         // Addend 1 is negative
         if ( num1Sign && !num2Sign ) {
-            const isSubtrahendBigger = this.isNum2Bigger( num1, num2 );
+            const isSubtrahendBigger = this.isSecondNumBigger( num1, num2 );
+            // Addend 2 is bigger, swap and subtract
             if ( isSubtrahendBigger ) {
-                return this.subtract_big_numbers( num2, num1.substring(1));
+                return this.subtract_big_numbers( num2, num1.substring( 1 ) );
             }
+            // Otherwise subtract with - sign
             return `-${this.subtract_big_numbers( num1.substring( 1 ), num2 )}`;
         }
 
         // Addend 2 is negative
         if ( !num1Sign && num2Sign ) {
-            const isSubtrahendBigger = this.isNum2Bigger( num1, num2 );
-            if (isSubtrahendBigger) {
-                return `-${this.subtract_big_numbers(num2.substring(1), num1)}`;
+            const isSubtrahendBigger = this.isSecondNumBigger( num1, num2 );
+            // Addend 2 is bigger, swap, subtract with - sign
+            if ( isSubtrahendBigger ) {
+                return `-${this.subtract_big_numbers( num2.substring( 1 ), num1 )}`;
             }
+            // Otherwise just subtract
             return this.subtract_big_numbers( num1, num2.substring( 1 ) );
         }
 
         // Both Addends negative
+        // Add numbers with - sign
         if ( num1Sign && num2Sign ) {
-            return `-${this.add_big_numbers( num1.substring( 1 ), num2.substring( 1 ))}`;
+            return `-${this.add_big_numbers( num1.substring( 1 ), num2.substring( 1 ) )}`;
         }
 
-        const isAddendBigger = this.isNum2Bigger( num1, num2 );
+        const isAddendBigger = this.isSecondNumBigger( num1, num2 );
         if ( isAddendBigger ) {
             return this.add_big_numbers( num2, num1 );
         }
 
-        num1 = this.splitNumbers( num1 ).map( x => +x );
-        num2 = this.splitNumbers( num2 ).map( x => +x );
+        num1 = this.splitNumByMillions( num1 ).reverse().map( x => +x );
+        num2 = this.splitNumByMillions( num2 ).reverse().map( x => +x );
         const container = [];
         let carry = 0;
 
         for ( let i = 0; i < num1.length; ++i ) {
             let sum = num1[i] + this.getValueOrZero( num2[i] ) + carry;
-            if (sum >= 1e7) {
+            if ( sum >= 1e7 ) {
                 sum %= 1e7;
                 carry = 1;
             } else {
@@ -148,47 +160,45 @@ class CustomBigInt {
             }
             container.push( sum );
         }
-        carry && container.push(carry);
+        carry && container.push( carry );
         return this.handleZeros( container.reverse() ).join( '' );
     };
 }
 
 
-const bigInt_1 = new CustomBigInt('8489498498416516584984186951891894865148941');
+const bigInt_1 = new CustomBigInt( '8489498498416516584984186951891894865148941' );
+bigInt_1.print();
 
-// console.log( bigInt_1.add_big_numbers(
-//     '8489498498416516584984186951891894865148941',
-//                                                  '574394984984165165849841869518918'
-//     ),
-//                                              '8489498498990911569968352117741736734667859');
-// console.log( bigInt_1.add_big_numbers( '9999999999999999999999', '3900000000000000000000' ) , '13899999999999999999999' );
-// console.log( bigInt_1.add_big_numbers( '555555500000011', '44444450000000' ), '599999950000011' );1099999999999999999999
-// console.log( bigInt_1.add_big_numbers( '40000000', '60000000' ), '100000000' );
-// console.log( bigInt_1.add_big_numbers( '55555555', '44444445' ), '100000000' );
-// console.log( bigInt_1.add_big_numbers( '1000000000000000000', '4999999' ), '1000000000004999999' );
-// console.log( bigInt_1.add_big_numbers( '-100000000000', '-111149934569' ), '-211149934569' );
-// console.log( bigInt_1.add_big_numbers( '-111149934569', '-100000000000' ), '-211149934569' );
-// console.log( bigInt_1.add_big_numbers( '-100000000000', '111149934569' ), '11149934569' );
-// console.log( bigInt_1.add_big_numbers( '-111149934569', '100000000000' ), '-11149934569' );
-// console.log( bigInt_1.add_big_numbers( '111149934569', '-100000000000' ), '11149934569' );
-// console.log( bigInt_1.add_big_numbers( '100000000000', '-111149934569' ), '-11149934569' );
-// console.log( bigInt_1.add_big_numbers( '-1000000000000000000', '4999999' ), '-999999999995000001' );
+console.log( bigInt_1.add_big_numbers( '8489498498416516584984186951891894865148941', '574394984984165165849841869518918' ),
+    '8489498498990911569968352117741736734667859' );
+console.log( bigInt_1.add_big_numbers( '9999999999999999999999', '3900000000000000000000' ),
+    '13899999999999999999999' );
+console.log( bigInt_1.add_big_numbers( '555555500000011', '44444450000000' ), '599999950000011' );
+console.log( bigInt_1.add_big_numbers( '40000000', '60000000' ), '100000000' );
+console.log( bigInt_1.add_big_numbers( '55555555', '44444445' ), '100000000' );
+console.log( bigInt_1.add_big_numbers( '1000000000000000000', '4999999' ), '1000000000004999999' );
+console.log( bigInt_1.add_big_numbers( '-100000000000', '-111149934569' ), '-211149934569' );
+console.log( bigInt_1.add_big_numbers( '-111149934569', '-100000000000' ), '-211149934569' );
+console.log( bigInt_1.add_big_numbers( '-100000000000', '111149934569' ), '11149934569' );
+console.log( bigInt_1.add_big_numbers( '-111149934569', '100000000000' ), '-11149934569' );
+console.log( bigInt_1.add_big_numbers( '111149934569', '-100000000000' ), '11149934569' );
+console.log( bigInt_1.add_big_numbers( '100000000000', '-111149934569' ), '-11149934569' );
+console.log( bigInt_1.add_big_numbers( '-1000000000000000000', '4999999' ), '-999999999995000001' );
 
-// console.log( bigInt_1.subtract_big_numbers(
-//         '988489498498416516584984186951891894865148941',
-//         '8416516584984186951891894865148941',
-//         ),
-//     '988489498490000000000000000000000000000000000' );
+console.log( bigInt_1.subtract_big_numbers(
+        '988489498498416516584984186951891894865148941',
+        '8416516584984186951891894865148941',
+    ),
+    '988489498490000000000000000000000000000000000' );
 console.log( bigInt_1.subtract_big_numbers( '85200000018124291', '18124295' ), '85199999999999996' );
-// console.log( bigInt_1.subtract_big_numbers( '-100000000000', '-111149934569' ), '11149934569' );
-// console.log( bigInt_1.subtract_big_numbers( '-111149934569', '-100000000000' ), '-11149934569' );
-// console.log( bigInt_1.subtract_big_numbers( '-100000000000', '111149934569' ), '-211149934569' );
-// console.log( bigInt_1.subtract_big_numbers( '-111149934569', '100000000000' ), '-211149934569' );
-// console.log( bigInt_1.subtract_big_numbers( '111149934569', '-100000000000' ), '211149934569' );
-// console.log( bigInt_1.subtract_big_numbers( '100000000000', '-111149934569' ), '211149934569' );
-// console.log( bigInt_1.subtract_big_numbers( '1000000000000000000', '4999999' ), '999999999995000001' );
-// console.log( bigInt_1.subtract_big_numbers( '56744444444444444', '44443334444333' ), '56700001110000111' );
-
+console.log( bigInt_1.subtract_big_numbers( '-100000000000', '-111149934569' ), '11149934569' );
+console.log( bigInt_1.subtract_big_numbers( '-111149934569', '-100000000000' ), '-11149934569' );
+console.log( bigInt_1.subtract_big_numbers( '-100000000000', '111149934569' ), '-211149934569' );
+console.log( bigInt_1.subtract_big_numbers( '-111149934569', '100000000000' ), '-211149934569' );
+console.log( bigInt_1.subtract_big_numbers( '111149934569', '-100000000000' ), '211149934569' );
+console.log( bigInt_1.subtract_big_numbers( '100000000000', '-111149934569' ), '211149934569' );
+console.log( bigInt_1.subtract_big_numbers( '1000000000000000000', '4999999' ), '999999999995000001' );
+console.log( bigInt_1.subtract_big_numbers( '56744444444444444', '44443334444333' ), '56700001110000111' );
 
 log();
 
@@ -206,7 +216,7 @@ function log() {
     console.log( bigInt_1.add_big_numbers( '-111149934569', '100000000000' ) === '-11149934569' );
     console.log( bigInt_1.add_big_numbers( '111149934569', '-100000000000' ) === '11149934569' );
     console.log( bigInt_1.add_big_numbers( '100000000000', '-111149934569' ) === '-11149934569' );
-    console.log( bigInt_1.add_big_numbers( '-1000000000000000000', '4999999' )=== '-999999999995000001' );
+    console.log( bigInt_1.add_big_numbers( '-1000000000000000000', '4999999' ) === '-999999999995000001' );
 
     console.log( bigInt_1.subtract_big_numbers(
             '988489498498416516584984186951891894865148941', '8416516584984186951891894865148941' ) ===
