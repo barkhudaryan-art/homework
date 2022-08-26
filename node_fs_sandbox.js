@@ -1,55 +1,43 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require( 'fs' );
+const path = require( 'path' );
 
-const unique_nums_file_path = path.resolve(__dirname, "../sandbox/Unique_Unsorted_Numbers.txt")
+const unique_nums_file_path = path.resolve( __dirname, '../sandbox/Unique_Unsorted_Numbers.txt' );
 
-// const file = fs.readFileSync(unique_nums_file_path, 'utf8')
+const range = Array.from( Array( 42949673 ).keys() );
 
-const randomNumInRange = (min, max) => {
-    return Math.floor(Math.random() * (max - min) + min);
-}
+const generateArrFromRange = (min, max) => {
+    const arr = [];
+    for ( let i = min; i < max; i++ ) {
+        arr.push( i );
+    }
+    return arr;
+};
 
-const setBit = (n, arr) => arr[Math.floor(n / 32)] |= 1 << n % 32;
+const writeStream = fs.createWriteStream( unique_nums_file_path, { flags: 'a' } );
 
-const bitVector = new Array(32).fill(() => new Array(4194304).fill(0));
-const writeStream = fs.createWriteStream(unique_nums_file_path, { flags: 'a' });
-const ranges = [
-    [40e8, 4294967295],
-    [20e8, 24e8 - 1],
-    [8e8, 12e8 - 1],
-    [24e8, 28e8 - 1],
-    [4e8, 8e8 - 1],
-    [32e8, 36e8 - 1],
-    [16e8, 20e8 - 1],
-    [0, 4e8 - 1],
-    [12e8, 16e8 - 1],
-    [36e8, 40e8-1],
-    [28e8, 32e8 - 1],
-]
 const writeToFile = async (range) => {
-    let x = 0;
-    let j = 0;
-    for (let i = 0; i < bitVector.length; ++i) {
-       while (x < 2e8) {
-            for (let k = 0; k < 32; ++k) {
-                const num = Math.abs(randomNumInRange(range[0], range[1]));
-                if (!(bitVector[i][j] & (1 << k))) {
-                    setBit(num % 134217728, bitVector[Math.floor(num / 134217728)])
-                    const ableToWrite = writeStream.write(`${num} `);
-                    if (!ableToWrite) {
-                        await new Promise(resolve => {
-                            writeStream.once('drain', resolve);
-                        });
-                    }
-                    ++x;
-                }
+    for ( let i = 0; i < 42949673; ++i ) {
+        // console.time('1')
+        // const rangeIndex = Math.floor( Math.random() * range.length );
+        let temp = generateArrFromRange( range[i] * 100, range[i] === 42949672 ?
+                                                                    4294967295 :
+                                                                    range[i] * 100 + 100 );
+
+        for ( let j = 0; j < 50; ++j ) {
+            const index = Math.floor( Math.random() * temp.length );
+
+            const ableToWrite = writeStream.write( `${temp[index]} ` );
+            if ( !ableToWrite ) {
+                await new Promise( resolve => {
+                    writeStream.once( 'drain', resolve );
+                } );
             }
-            ++j;
+            temp.splice( index, 1 );
         }
-        j = 0;
+        // range.splice( rangeIndex, 1 );
+        // console.timeEnd('1')
     }
 };
 
-writeToFile(ranges[1])
-writeToFile(ranges[0])
+writeToFile( range );
 
