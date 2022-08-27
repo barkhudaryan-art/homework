@@ -70,24 +70,25 @@ const testText = path.resolve( __dirname, '../sandbox/Unique_Unsorted_Numbers.tx
 const rs = fs.createReadStream( unique_nums_file_path );
 const ws = fs.createWriteStream( testText );
 
-const chunks = [];
+const chunks = new Set();
 let buffer = '';
 
 rs.on( 'readable', () => {
     let chunk;
     while ( null !== ( chunk = rs.read() ) ) {
-        // console.log(chunks.length);
-        // chunk.toString().split('').map(x => chunks.push(x));
+        console.log(chunks.size, chunk);
+        chunk.toString().split(' ').map(x => chunks.add(x));
         // chunks.push(chunk.toString());
-        if ( chunk && buffer.length < 100000000 || chunk.toString()[chunk.toString().length - 1] !== ' ' ) {
-            buffer += chunk.toString();
-        } else {
-            chunks.push( buffer );
-            buffer = '';
-        }
+        // if ( chunk && buffer.length < 100000000 || chunk.toString()[chunk.toString().length - 1] !== ' ' ) {
+        //     buffer += chunk.toString();
+        // } else {
+        //     chunks.push( buffer );
+        //     buffer = '';
+        // }
     }
 } );
 rs.on( 'end', () => {
+    console.log(chunks.size)
     console.log( 'finished' );
 } );
 rs.pipe( ws );
