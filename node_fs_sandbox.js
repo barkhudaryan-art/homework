@@ -1,57 +1,49 @@
 const fs = require( 'fs' );
 const path = require( 'path' );
 
+const RANGE_SIZE = 98304;
+const RANGE_NUM_COUNT = 43960;
+
 const unique_nums_file_path = path.resolve( __dirname, '../sandbox/Unique_Unsorted_Numbers.txt' );
 
 
-const generateObjFromRange = (min, max) => {
-    const set = {};
-    for ( let i = min; i < max; ++i ) {
-        set[i] = i ;
+const createRandomizedRange = (min, max, isCut = false) => {
+    const set = [];
+    for ( let i = min; i < max; isCut ? i += 2 : ++i ) {
+        set.push( i );
+    }
+    let temp;
+    let curr;
+    let top = set.length;
+    while ( top-- ) {
+        curr = Math.floor(Math.random() * top + 1 );
+        temp = set[curr];
+        set[curr] = set[top];
+        set[top] = temp;
     }
     return set;
 };
 
-const getIndexFromObjKeys = (rangeIndex, range) => {
-    let index = 0
-    for (const rangeKey in range) {
-        if (index !== rangeIndex) {
-            ++index;
-            continue;
-        }
-        return rangeKey;
-    }
-}
-
-const RANGE_SIZE = 16777216;
-const RANGE_NUM_COUNT = 256
-const range = generateObjFromRange(0, RANGE_SIZE);
-
 const writeStream = fs.createWriteStream( unique_nums_file_path, { flags: 'a' } );
 
-const writeToFile = async (range) => {
-    for ( let i = 0; i < RANGE_SIZE; ++i ) {
-    console.time('1')
-        const rangeIndex = Math.floor( Math.random() * Object.keys(range).length );
-        const index = getIndexFromObjKeys(rangeIndex, range);
-
-        const innerRange = generateObjFromRange( rangeIndex * RANGE_NUM_COUNT, rangeIndex * RANGE_NUM_COUNT + RANGE_NUM_COUNT );
-        for ( let j = 0; j < Math.floor(RANGE_NUM_COUNT / 2); ++j ) {
-            const innerRangeIndex = Math.floor( Math.random() * Object.keys(innerRange).length );
-            const index = getIndexFromObjKeys(innerRangeIndex, innerRange);
-            // const ableToWrite = writeStream.write( `${index} ` );
-            // if ( !ableToWrite ) {
-            //     await new Promise( resolve => {
-            //         writeStream.once( 'drain', resolve );
-            //     } );
-            // }
-            // console.log(i,j)
-            delete innerRange[index]
+( async () => {
+    // Creates an array of randomly ordered numbers,
+    // each number is the minimum * 43,960 of a range
+    const ranges = createRandomizedRange(0, RANGE_SIZE, true);
+    // 49,152 iterations
+    for ( let i = 0; i < ranges.length; ++i ) {
+        // Creates an array of randomly ordered unique numbers in a specified range
+        const range = createRandomizedRange(ranges[i] * RANGE_NUM_COUNT, ranges[i] * RANGE_NUM_COUNT + RANGE_NUM_COUNT );
+        // 43,960 iterations
+        // 2,160,721,920 in total
+        for ( let j = 0; j < range.length; ++j ) {
+            const ableToWrite = writeStream.write( `${range[j]} ` );
+            if ( !ableToWrite ) {
+                await new Promise( resolve => {
+                    writeStream.once( 'drain', resolve );
+                } );
+            }
         }
-        delete range[index]
-    console.timeEnd('1')
     }
-};
-
-writeToFile( range );
+} )();
 
