@@ -3,92 +3,71 @@ const path = require( 'path' );
 
 const BIT_SIZE = 32;
 
-const setBit = (n, arr) => arr[Math.floor( n / BIT_SIZE )] |= 1 << n % BIT_SIZE;
-
-const createBitVector = (arr) => {
-    const bitVector = new Array( BIT_SIZE ).fill( new Array( 4194304 ).fill( 0 ) );
-    for ( let i = 0; i < arr.length; ++i ) {
-        setBit( arr[i] % 134217728, bitVector[Math.floor( arr[i] / 134217728 )] );
-    }
-    return bitVector;
+const setBit = (n, arr) => {
+    return arr[Math.floor(n / BIT_SIZE)] |= 1 << (n % BIT_SIZE)
 };
+
+const createVector = (arr) => {
+    const vector =  new Uint32Array(134217728);
+    for ( let i = 0; i < arr.length; ++i ) {
+        setBit( +arr[i], vector );
+    }
+    return vector;
+}
 
 const wonderSort = (arr) => {
-    const bitVector = createBitVector( arr );
-    const result = [];
-    let bitIndex = 0;
-    for ( let i = 0; i < bitVector.length; ++i ) {
-        for ( let j = 0; j < bitVector[i].length; ++j ) {
-            for ( let k = 0; k < BIT_SIZE; ++k ) {
-                if ( bitVector[i][j] & ( 1 << k ) ) {
-                    result[bitIndex] = j * BIT_SIZE + i * 134217728 + k;
-                    bitIndex++;
-                }
+    const vector = createVector( arr );
+    const res = [];
+    let index = 0;
+    for ( let i = 0; i < vector.length; ++i ) {
+        for ( let j = 0; j < BIT_SIZE; ++j ) {
+            if (vector[i] & (1 << j)) {
+                res[index] = i * BIT_SIZE + j;
+                ++index;
             }
         }
     }
-    return result;
-};
+    return res;
+}
 
-const merge2Arrays = (arr1, arr2) => {
-    const result = [...Array( arr1.length + arr2.length )];
-    let i = 0,
-        j = 0,
-        x = 0;
-
-    while ( result.length > x ) {
-        if ( arr1[j] < arr2[i] ) {
-            result[x] = arr1[j];
-            j++;
-        } else {
-            result[x] = arr2[i];
-            i++;
-            if ( !arr2[i] && !result[x] ) {
-                result[x] = arr1[j];
-                j++;
-            }
-        }
-        x++;
-    }
-
-    return result;
-};
-
-const mergeArrays = (...arrays) => {
-    // console.log(arrays)
-    return arrays.reduce( (prevArr, currArr) => {
-        return merge2Arrays( prevArr, currArr );
-    }, [] );
-};
-
-const unique_nums_file_path = path.resolve( __dirname, '../sandbox/remove.txt' );
+// const unique_nums_file_path = path.resolve( __dirname, '../sandbox/remove.txt' );
 // const unique_nums_file_path = path.resolve(__dirname, "../sandbox/nums.txt")
-// const unique_nums_file_path = path.resolve(__dirname, "../sandbox/Unique_Unsorted_Numbers.txt")
-// const testText = path.resolve(__dirname, "../sandbox/test.txt")
-const testText = path.resolve( __dirname, '../sandbox/Unique_Unsorted_Numbers.txt' );
+const unique_nums_file_path = path.resolve(__dirname, "../sandbox/Unique_Unsorted_Numbers.txt")
+const testText = path.resolve(__dirname, "../sandbox/test.txt")
+// const testText = path.resolve( __dirname, '../sandbox/Unique_Unsorted_Numbers.txt' );
 
 const rs = fs.createReadStream( unique_nums_file_path );
 const ws = fs.createWriteStream( testText );
 
-const chunks = new Set();
+// const chunks = [];
 let buffer = '';
-
+let count = 0;
 rs.on( 'readable', () => {
     let chunk;
     while ( null !== ( chunk = rs.read() ) ) {
-        console.log(chunks.size, chunk);
-        chunk.toString().split(' ').map(x => chunks.add(x));
-        // chunks.push(chunk.toString());
-        // if ( chunk && buffer.length < 100000000 || chunk.toString()[chunk.toString().length - 1] !== ' ' ) {
-        //     buffer += chunk.toString();
-        // } else {
-        //     chunks.push( buffer );
-        //     buffer = '';
-        // }
+        if ( chunk.toString()[chunk.toString().length - 1] !== ' ' ) {
+            buffer += chunk.toString();
+        } else {
+            ++count;
+            if (buffer.split(' ').length > 100000) {
+                wonderSort(buffer.split(' '))
+                // console.log(buffer.split(' '))
+                // console.log(buffer.split(' ').sort((a,b) => a - b))
+            }
+            // ( async () => {
+            //     const ableToWrite = ws.write(`${} `);
+            //     if (!ableToWrite) {
+            //         await new Promise(resolve => {
+            //             ws.once('drain', resolve);
+            //         });
+            //     }
+            // })()
+            buffer = '';
+        }
     }
 } );
 rs.on( 'end', () => {
-    console.log(chunks.size)
+    console.log(count)
     console.log( 'finished' );
 } );
 rs.pipe( ws );
