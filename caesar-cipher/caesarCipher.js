@@ -8,7 +8,7 @@ const INDEXES = {
 
 const SYMBOL_COUNT = 36;
 
-const caesarCipher = (str, shiftAmount, LI = { ...INDEXES }) => {
+const encode = (str, shiftAmount, LI = { ...INDEXES }) => {
     str = str.toUpperCase();
     let res = "";
     const shift = shiftAmount % SYMBOL_COUNT;
@@ -54,8 +54,8 @@ const decode = (str, shiftAmount, LI = { ...INDEXES }) => {
     return res;
 }
 
-console.log(caesarCipher("THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG", 3));
+console.log(encode("THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG", 3));
 console.log(decode("WKH TXLFN EURZQ IR0 MXPSV RYHU WKH OD21 GRJ", 3));
 
-console.log(caesarCipher("Deciphering is done in reverse with a right shift of 3", 4));
+console.log(encode("Deciphering is done in reverse with a right shift of 3", 4));
 console.log(decode("HIGMTLIVMRK MW HSRI MR VIZIVWI 0MXL E VMKLX WLMJX SJ 7", 4));
